@@ -28,7 +28,7 @@ export function StartScreen({ onGetStarted }: StartScreenProps) {
       <div className="min-h-[100dvh] w-full flex items-center justify-center p-4 overflow-hidden">
         <div className="relative shadow-xl overflow-hidden rounded-3xl" style={{ height: '90vh', width: 'calc(90vh * (9/19.5))', maxWidth: '100vw' }}>
           <img 
-            src="/images/StartScreen.png"  
+            src="/images/StartScreen.png" 
             alt="Start Screen"
             style={{ 
               position: 'absolute',

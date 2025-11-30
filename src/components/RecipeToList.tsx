@@ -60,9 +60,24 @@ export function RecipeToList({ onNavigate }: RecipeToListProps) {
         <p className="text-white/90">Convert recipes from anywhere into smart shopping lists</p>
       </div>
 
-      <div className="px-6 -mt-4">
+      <div className="px-6 mt-4">
         {/* AI Conversion Info Card */}
-        <div className="mb-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl shadow-lg p-5 text-white">
+        <div 
+          className="mb-6 rounded-xl shadow-lg p-5 text-white mt-8"
+          style={{
+            background: 'linear-gradient(90deg, #ec4899, #8b5cf6, #ec4899)',
+            backgroundSize: '200% 100%',
+            animation: 'gradient 3s linear infinite'
+          }}
+        >
+          <style>
+            {`
+              @keyframes gradient {
+                0% { background-position: 100% 0%; }
+                100% { background-position: -100% 0%; }
+              }
+            `}
+          </style>
           <div className="flex items-center gap-3 mb-3">
             <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
               <span className="text-2xl">🤖</span>

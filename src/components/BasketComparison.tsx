@@ -12,7 +12,7 @@ const basketItems = [
     id: 1,
     name: 'Organic Free-Range Eggs (Large)',
     quantity: '6 per tray',
-    image: 'eggs',
+    image: 'https://dm.emea.cms.aldi.cx/is/image/aldiprodeu/product/jpg/scaleWidth/500/e43e7551-3f17-4d69-9be5-79bcb7129041/British%20Organic%20Eggs%206%20Pack',
     prices: {
       tesco: 2.80,
       sainsburys: 2.85,
@@ -25,7 +25,7 @@ const basketItems = [
     id: 2,
     name: 'Wholemeal Bread (800g)',
     quantity: '1 loaf',
-    image: 'bread',
+    image: 'https://imgproxy-retcat.assets.schwarz/2AgFSlZ4t2k2WLk1yNeMPYnGXhvYp2e7Dq-qDHIFn_o/sm:1/w:1278/h:959/cz/M6Ly9wcm9kLWNhd/GFsb2ctbWVkaWEvdWsvMS84MjYwMTlGREFEREY1RTA0QzE1QTU5MzU/wQUI0MTQ1RDI1QUFDODdCQkQzMEI1RTBEOTYwQzU4NUM1MEU1OTE3LmpwZw.jpg',
     prices: {
       tesco: 1.20,
       sainsburys: 1.35,
@@ -38,7 +38,7 @@ const basketItems = [
     id: 3,
     name: 'Semi-Skimmed Milk (2 Litres)',
     quantity: '1 bottle',
-    image: 'milk',
+    image: 'https://dm.emea.cms.aldi.cx/is/image/aldiprodeu/product/jpg/scaleWidth/500/fb259109-9f17-403f-83f8-15a183c4cba5/Filtered%20British%20Semi%20Skimmed%20Milk',
     prices: {
       tesco: 1.75,
       sainsburys: 1.80,
@@ -50,11 +50,11 @@ const basketItems = [
 ];
 
 const storeInfo = {
-  tesco: { name: 'Tesco', color: '#00539F', emoji: '🔵' },
-  sainsburys: { name: "Sainsbury's", color: '#F06C00', emoji: '🟠' },
-  aldi: { name: 'Aldi', color: '#00A0E3', emoji: '🔷' },
-  lidl: { name: 'Lidl', color: '#0050AA', emoji: '🟦' },
-  morrisons: { name: 'Morrisons', color: '#FFD200', emoji: '🟡' }
+  tesco: { name: 'Tesco', color: '#00539F', emoji: '🔵', domain: 'tesco.com' },
+  sainsburys: { name: "Sainsbury's", color: '#F06C00', emoji: '🟠', domain: 'sainsburys.co.uk' },
+  aldi: { name: 'Aldi', color: '#00A0E3', emoji: '🔷', domain: 'aldi.co.uk' },
+  lidl: { name: 'Lidl', color: '#0050AA', emoji: '🟦', domain: 'lidl.co.uk' },
+  morrisons: { name: 'Morrisons', color: '#FFD200', emoji: '🟡', domain: 'morrisons.com' }
 };
 
 export function BasketComparison({ onNavigate }: BasketComparisonProps) {
@@ -149,9 +149,19 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="w-14 h-14 rounded-full flex items-center justify-center text-2xl" 
-                         style={{ backgroundColor: `${store.color}20` }}>
-                      {store.emoji}
+                    <div className="w-14 h-14 flex items-center justify-center rounded-full bg-gray-50 border border-gray-100 overflow-hidden">
+                      <img 
+                        src={store.name === "Sainsbury's" 
+                          ? "https://cdn.brandfetch.io/id3jwaSrnD/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1685968241221"
+                          : `https://www.google.com/s2/favicons?domain=${store.domain}&sz=128`
+                        }
+                        alt={store.name} 
+                        className="w-10 h-10 object-contain"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.parentElement!.innerText = store.emoji;
+                        }}
+                      />
                     </div>
                     <div className="flex-1">
                       <h4 className="text-gray-800 mb-1">{store.name}</h4>
@@ -198,10 +208,8 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
               return (
                 <div key={item.id} className="bg-white border-2 border-gray-200 rounded-xl p-4 shadow-sm">
                   <div className="flex gap-3 mb-4">
-                    <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center text-4xl shadow-inner">
-                      {item.image === 'eggs' && '🥚'}
-                      {item.image === 'bread' && '🍞'}
-                      {item.image === 'milk' && '🥛'}
+                    <div className="w-20 h-20 bg-white border border-gray-200 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
+                      <img src={item.image} alt={item.name} className="w-full h-full object-contain p-1" />
                     </div>
                     <div className="flex-1">
                       <h4 className="text-gray-800 mb-1">{item.name}</h4>
@@ -223,22 +231,27 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
                       {Object.entries(item.prices).map(([store, price]) => {
                         const info = storeInfo[store as keyof typeof storeInfo];
                         const isCheapest = store === itemCheapestStore;
+                        const logoUrl = store === 'sainsburys' 
+                          ? "https://cdn.brandfetch.io/id3jwaSrnD/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1685968241221"
+                          : `https://www.google.com/s2/favicons?domain=${info.domain}&sz=128`;
+
                         return (
-                          <div key={store} className={`text-center p-2 rounded-lg ${
-                            isCheapest ? 'bg-green-100 border-2 border-green-400' : 'bg-white'
-                          }`}>
-                            <div className="text-xs text-gray-600 mb-1" title={info.name}>
-                              {info.emoji}
+                          <div key={store} className="flex flex-col items-center gap-1">
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-white overflow-hidden shadow-sm transition-all ${
+                              isCheapest ? 'ring-2 ring-[#4CAF50] ring-offset-1' : 'border border-gray-100'
+                            }`}>
+                              <img 
+                                src={logoUrl}
+                                alt={info.name}
+                                className="w-full h-full object-cover"
+                              />
                             </div>
-                            <div className={`text-sm ${isCheapest ? 'text-green-700 font-medium' : 'text-gray-800'}`}>
+                            <div className={`text-xs font-medium ${isCheapest ? 'text-[#4CAF50]' : 'text-gray-600'}`}>
                               £{price.toFixed(2)}
                             </div>
                           </div>
                         );
                       })}
-                    </div>
-                    <div className="mt-2 text-xs text-gray-600 text-center">
-                      🔵 Tesco | 🟠 Sainsbury's | 🔷 Aldi | 🟦 Lidl | 🟡 Morrisons
                     </div>
                   </div>
                 </div>

@@ -11,7 +11,7 @@ export function Home({ onNavigate }: HomeProps) {
     <div className="min-h-screen bg-white">
       {/* Colored Header - Similar to Recipes Page */}
       <div className="bg-[#4CAF50] p-6 pb-8">
-        <h1 className="text-white mb-2">UK Grocery Saver</h1>
+        <h1 className="text-white mb-2">Pantry - UK Grocery Saver</h1>
         <p className="text-white/90">Your smart shopping journey starts here 💰</p>
       </div>
 
