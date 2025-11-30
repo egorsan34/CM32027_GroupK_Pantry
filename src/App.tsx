@@ -64,40 +64,42 @@ export default function App() {
   };
 
   return (
-    <MobileLayout className="bg-white relative overflow-hidden h-full">
-      <div className="h-full overflow-y-auto pb-20 scrollbar-hide">
+    <MobileLayout className="bg-white">
+      <div className="pb-20">
         {renderScreen()}
       </div>
-      <div className="absolute bottom-0 left-0 right-0 w-full bg-white border-t border-gray-200 px-4 py-3 z-10">
-        <div className="flex justify-around items-center">
-          <button 
-            onClick={() => setCurrentScreen('home')}
-            className="flex flex-col items-center gap-1"
-          >
-            <HomeIcon className={`w-6 h-6 ${currentScreen === 'home' ? 'text-[#4CAF50]' : 'text-gray-400'}`} />
-            <span className={`text-xs ${currentScreen === 'home' ? 'text-[#4CAF50]' : 'text-gray-400'}`}>Home</span>
-          </button>
-          <button 
-            onClick={() => setCurrentScreen('basket')}
-            className="flex flex-col items-center gap-1"
-          >
-            <ShoppingCart className={`w-6 h-6 ${currentScreen === 'basket' ? 'text-[#4CAF50]' : 'text-gray-400'}`} />
-            <span className={`text-xs ${currentScreen === 'basket' ? 'text-[#4CAF50]' : 'text-gray-400'}`}>Basket</span>
-          </button>
-          <button 
-            onClick={() => setCurrentScreen('social')}
-            className="flex flex-col items-center gap-1"
-          >
-            <Utensils className={`w-6 h-6 ${currentScreen === 'social' ? 'text-[#4CAF50]' : 'text-gray-400'}`} />
-            <span className={`text-xs ${currentScreen === 'social' ? 'text-[#4CAF50]' : 'text-gray-400'}`}>Recipes</span>
-          </button>
-          <button 
-            onClick={() => setCurrentScreen('profile')}
-            className="flex flex-col items-center gap-1"
-          >
-            <User className={`w-6 h-6 ${currentScreen === 'profile' ? 'text-[#4CAF50]' : 'text-gray-400'}`} />
-            <span className={`text-xs ${currentScreen === 'profile' ? 'text-[#4CAF50]' : 'text-gray-400'}`}>Profile</span>
-          </button>
+      <div className="fixed bottom-0 left-0 right-0 w-full max-w-md mx-auto">
+        <div className="bg-white border-t border-gray-200 px-4 py-3 rounded-b-3xl">
+          <div className="flex justify-around items-center">
+            <button 
+              onClick={() => setCurrentScreen('home')}
+              className="flex flex-col items-center gap-1"
+            >
+              <HomeIcon className={`w-6 h-6 ${currentScreen === 'home' ? 'text-[#4CAF50]' : 'text-gray-400'}`} />
+              <span className={`text-xs ${currentScreen === 'home' ? 'text-[#4CAF50]' : 'text-gray-400'}`}>Home</span>
+            </button>
+            <button 
+              onClick={() => setCurrentScreen('basket')}
+              className="flex flex-col items-center gap-1"
+            >
+              <ShoppingCart className={`w-6 h-6 ${currentScreen === 'basket' ? 'text-[#4CAF50]' : 'text-gray-400'}`} />
+              <span className={`text-xs ${currentScreen === 'basket' ? 'text-[#4CAF50]' : 'text-gray-400'}`}>Basket</span>
+            </button>
+            <button 
+              onClick={() => setCurrentScreen('social')}
+              className="flex flex-col items-center gap-1"
+            >
+              <Utensils className={`w-6 h-6 ${currentScreen === 'social' ? 'text-[#4CAF50]' : 'text-gray-400'}`} />
+              <span className={`text-xs ${currentScreen === 'social' ? 'text-[#4CAF50]' : 'text-gray-400'}`}>Recipes</span>
+            </button>
+            <button 
+              onClick={() => setCurrentScreen('profile')}
+              className="flex flex-col items-center gap-1"
+            >
+              <User className={`w-6 h-6 ${currentScreen === 'profile' ? 'text-[#4CAF50]' : 'text-gray-400'}`} />
+              <span className={`text-xs ${currentScreen === 'profile' ? 'text-[#4CAF50]' : 'text-gray-400'}`}>Profile</span>
+            </button>
+          </div>
         </div>
       </div>
     </MobileLayout>

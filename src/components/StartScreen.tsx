@@ -19,17 +19,16 @@ export function StartScreen({ onGetStarted }: StartScreenProps) {
 
   return (
     <div 
-      className={`fixed inset-0 w-full h-full z-40`}
+      className={`fixed inset-0 w-full h-full z-40 bg-gray-100`}
       style={{ 
         opacity: fadeIn ? 1 : 0,
         transition: 'opacity 700ms ease-in-out',
-        backgroundColor: 'transparent'
       }}
     >
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="mx-auto max-w-md w-full relative shadow-xl overflow-hidden" style={{ aspectRatio: '1675/3584' }}>
+      <div className="min-h-[100dvh] w-full flex items-center justify-center p-4 overflow-hidden">
+        <div className="relative shadow-xl overflow-hidden rounded-3xl" style={{ height: '90vh', width: 'calc(90vh * (9/19.5))', maxWidth: '100vw' }}>
           <img 
-            src="/images/StartScreen.png" 
+            src="/images/StartScreen.png"  
             alt="Start Screen"
             style={{ 
               position: 'absolute',
