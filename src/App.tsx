@@ -10,10 +10,19 @@ import { SocialRecipes } from './components/SocialRecipes';
 import { PriceHistory } from './components/PriceHistory';
 import { Notifications } from './components/Notifications';
 import { Profile } from './components/Profile';
+import { EditProfile } from './components/EditProfile';
+import { GeneralSettings } from './components/GeneralSettings';
+import { PrivacySecurity } from './components/PrivacySecurity';
+import { HelpCenter } from './components/HelpCenter';
+import { ContactSupport } from './components/ContactSupport';
+import { FAQ } from './components/FAQ';
+import { TermsConditions } from './components/TermsConditions';
+import { PrivacyPolicy } from './components/PrivacyPolicy';
+import { HowPantryWorks } from './components/HowPantryWorks';
 import { Home as HomeIcon, ShoppingCart, Utensils, User } from 'lucide-react';
 
 type AppState = 'splash' | 'onboarding' | 'app';
-type Screen = 'home' | 'basket' | 'recipe' | 'dietary' | 'social' | 'price-history' | 'notifications' | 'profile';
+type Screen = 'home' | 'basket' | 'recipe' | 'dietary' | 'social' | 'price-history' | 'notifications' | 'profile' | 'edit-profile' | 'general-settings' | 'privacy-security' | 'help-center' | 'contact-support' | 'faq' | 'terms' | 'privacy-policy' | 'how-pantry-works';
 
 export default function App() {
   const [appState, setAppState] = useState<AppState>('splash');
@@ -58,6 +67,24 @@ export default function App() {
         return <Notifications onNavigate={setCurrentScreen} />;
       case 'profile':
         return <Profile onNavigate={setCurrentScreen} />;
+      case 'edit-profile':
+        return <EditProfile onNavigate={setCurrentScreen} />;
+      case 'general-settings':
+        return <GeneralSettings onNavigate={setCurrentScreen} />;
+      case 'privacy-security':
+        return <PrivacySecurity onNavigate={setCurrentScreen} />;
+      case 'help-center':
+        return <HelpCenter onNavigate={setCurrentScreen} />;
+      case 'contact-support':
+        return <ContactSupport onNavigate={setCurrentScreen} />;
+      case 'faq':
+        return <FAQ onNavigate={setCurrentScreen} />;
+      case 'terms':
+        return <TermsConditions onNavigate={setCurrentScreen} />;
+      case 'privacy-policy':
+        return <PrivacyPolicy onNavigate={setCurrentScreen} />;
+      case 'how-pantry-works':
+        return <HowPantryWorks onNavigate={setCurrentScreen} />;
       default:
         return <Home onNavigate={setCurrentScreen} />;
     }
@@ -68,8 +95,8 @@ export default function App() {
       <div className="pb-20">
         {renderScreen()}
       </div>
-      <div className="fixed bottom-0 left-0 right-0 w-full max-w-md mx-auto">
-        <div className="bg-white border-t border-gray-200 px-4 py-3 rounded-b-3xl">
+      <div className="fixed bottom-0 left-0 right-0 w-full max-w-md mx-auto pointer-events-none">
+        <div className="bg-white border-t border-gray-200 px-4 py-3 rounded-b-3xl pointer-events-auto">
           <div className="flex justify-around items-center">
             <button 
               onClick={() => setCurrentScreen('home')}

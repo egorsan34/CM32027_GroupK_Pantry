@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ChevronLeft, Bell } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { PRICES_LAST_UPDATED } from '../lib/priceData';
 
 type Screen = 'home' | 'basket' | 'recipe' | 'dietary' | 'social' | 'price-history' | 'notifications';
 
@@ -52,7 +53,10 @@ export function PriceHistory({ onNavigate }: PriceHistoryProps) {
         {/* Product Info */}
         <div className="mb-6">
           <h2 className="text-gray-800 mb-2">Organic Whole Milk (2L) Price Trend</h2>
-          <p className="text-gray-600">(Last 12 Months)</p>
+          <div className="flex items-center justify-between">
+            <p className="text-gray-600">(Last 12 Months)</p>
+            <span className="text-gray-400 text-xs">Updated: {PRICES_LAST_UPDATED}</span>
+          </div>
         </div>
 
         {/* Timeframe Toggle */}

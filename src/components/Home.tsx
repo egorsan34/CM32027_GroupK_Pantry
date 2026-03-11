@@ -9,10 +9,13 @@ interface HomeProps {
 export function Home({ onNavigate }: HomeProps) {
   return (
     <div className="min-h-screen bg-white">
-      {/* Colored Header - Similar to Recipes Page */}
+      {/* Header */}
       <div className="bg-[#4CAF50] p-6 pb-8">
-        <h1 className="text-white mb-2">Pantry - UK Grocery Saver</h1>
-        <p className="text-white/90">Your smart shopping journey starts here 💰</p>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-3xl font-bold text-white tracking-tight">Pantry</span>
+          <span className="bg-white/20 text-white text-xs px-2 py-0.5 rounded-full font-medium">UK</span>
+        </div>
+        <p className="text-white/90">Save more on every shop 💰</p>
       </div>
 
       {/* Main Content */}

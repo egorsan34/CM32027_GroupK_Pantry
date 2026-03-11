@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronLeft, Bell, Check, Link as LinkIcon, Instagram, Youtube, Video } from 'lucide-react';
+import { PRICES_LAST_UPDATED } from '../lib/priceData';
 
 type Screen = 'home' | 'basket' | 'recipe' | 'dietary' | 'social' | 'price-history' | 'notifications' | 'profile';
 
@@ -244,7 +245,10 @@ export function RecipeToList({ onNavigate }: RecipeToListProps) {
 
             {/* Store Comparison */}
             <div className="mb-6">
-              <h3 className="text-gray-800 mb-4">📊 Price Comparison by Store</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-gray-800">📊 Price Comparison by Store</h3>
+                <span className="text-gray-400 text-xs">Updated: {PRICES_LAST_UPDATED}</span>
+              </div>
               <div className="space-y-3">
                 {sortedStores.map((store, index) => (
                   <div 

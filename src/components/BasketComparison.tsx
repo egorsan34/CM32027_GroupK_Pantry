@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronLeft, Bell, Trash2, Plus } from 'lucide-react';
+import { PRICES_LAST_UPDATED } from '../lib/priceData';
 
 type Screen = 'home' | 'basket' | 'recipe' | 'dietary' | 'social' | 'price-history' | 'notifications' | 'profile';
 
@@ -138,7 +139,10 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
 
         {/* Basket Totals */}
         <div className="mb-6">
-          <h3 className="text-gray-800 mb-4">Compare Total Prices</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-gray-800">Compare Total Prices</h3>
+            <span className="text-gray-400 text-xs">Updated: {PRICES_LAST_UPDATED}</span>
+          </div>
           <div className="space-y-3">
             {stores.map((store, index) => (
               <div 

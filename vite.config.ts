@@ -8,14 +8,17 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      devOptions: {
+        enabled: false,
+      },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // Increase limit to 5MB
       },
-      manifest: {
-        name: 'UK Grocery Saver App',
-        short_name: 'Grocery Saver',
-        description: 'Save money on your grocery shopping',
+        manifest: {
+        name: 'Pantry',
+        short_name: 'Pantry',
+        description: 'Pantry helps you save money on every grocery shop by comparing prices across UK supermarkets.',
         theme_color: '#4CAF50',
         background_color: '#ffffff',
         display: 'standalone',
