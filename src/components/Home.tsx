@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShoppingCart, ChefHat, Users, TrendingDown, Leaf, Settings, MapPin } from 'lucide-react';
+import { ShoppingCart, ChefHat, Leaf, Settings, MapPin } from 'lucide-react';
 
 type Screen = 'home' | 'basket' | 'recipe' | 'dietary' | 'social' | 'price-history' | 'notifications' | 'profile' | 'edit-profile' | 'general-settings' | 'privacy-security' | 'help-center' | 'contact-support' | 'faq' | 'terms' | 'privacy-policy' | 'how-pantry-works' | 'map';
 
@@ -54,35 +54,20 @@ export function Home({ onNavigate }: HomeProps) {
 
         {/* All Features Section */}
         <div className="mb-6">
-          <h3 className="text-gray-800 mb-4">All Features</h3>
+          <h3 className="text-gray-800 mb-4">Features</h3>
           
           <div className="space-y-3">
-            {/* Social Recipes */}
+            {/* Nearby Stores */}
             <button 
-              onClick={() => onNavigate('social')}
+              onClick={() => onNavigate('map')}
               className="w-full flex items-center gap-4 p-4 bg-white rounded-lg border border-gray-200 hover:border-[#4CAF50] transition-colors"
             >
-              <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Users className="w-5 h-5 text-purple-600" />
+              <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <MapPin className="w-5 h-5 text-teal-600" />
               </div>
               <div className="flex-1 text-left">
-                <h4 className="text-gray-800">Social Recipe Sharing</h4>
-                <p className="text-gray-600">Community recipes with auto-calculated costs</p>
-              </div>
-              <span className="text-gray-400">›</span>
-            </button>
-
-            {/* Price History */}
-            <button 
-              onClick={() => onNavigate('price-history')}
-              className="w-full flex items-center gap-4 p-4 bg-white rounded-lg border border-gray-200 hover:border-[#4CAF50] transition-colors"
-            >
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <TrendingDown className="w-5 h-5 text-blue-600" />
-              </div>
-              <div className="flex-1 text-left">
-                <h4 className="text-gray-800">Price History Graphs</h4>
-                <p className="text-gray-600">Track price trends over time</p>
+                <h4 className="text-gray-800">Nearby Stores</h4>
+                <p className="text-gray-600">Find stores & get directions</p>
               </div>
               <span className="text-gray-400">›</span>
             </button>
@@ -102,6 +87,27 @@ export function Home({ onNavigate }: HomeProps) {
               <span className="text-gray-400">›</span>
             </button>
 
+            {/* Price Drop Notifications */}
+            <button 
+              onClick={() => onNavigate('notifications')}
+              className="w-full flex items-center gap-4 p-4 bg-white rounded-lg border border-gray-200 hover:border-[#4CAF50] transition-colors"
+            >
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-xl">🔔</span>
+              </div>
+              <div className="flex-1 text-left">
+                <h4 className="text-gray-800">Price Drop Alerts</h4>
+                <p className="text-gray-600">Get alerts when prices drop</p>
+              </div>
+              <span className="text-gray-400">›</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Quick Toggles */}
+        <div className="mb-6">
+          <h3 className="text-gray-800 mb-4">Quick Settings</h3>
+          <div className="space-y-3">
             {/* Sustainability Rating */}
             <div className="w-full flex items-center gap-4 p-4 bg-white rounded-lg border border-gray-200">
               <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -131,36 +137,6 @@ export function Home({ onNavigate }: HomeProps) {
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#4CAF50]"></div>
               </label>
             </div>
-
-            {/* Price Drop Notifications */}
-            <button 
-              onClick={() => onNavigate('notifications')}
-              className="w-full flex items-center gap-4 p-4 bg-white rounded-lg border border-gray-200 hover:border-[#4CAF50] transition-colors"
-            >
-              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-xl">🔔</span>
-              </div>
-              <div className="flex-1 text-left">
-                <h4 className="text-gray-800">Price Drop Notifications</h4>
-                <p className="text-gray-600">Get alerts when prices drop</p>
-              </div>
-              <span className="text-gray-400">›</span>
-            </button>
-
-            {/* Nearby Stores */}
-            <button 
-              onClick={() => onNavigate('map')}
-              className="w-full flex items-center gap-4 p-4 bg-white rounded-lg border border-gray-200 hover:border-[#4CAF50] transition-colors"
-            >
-              <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <MapPin className="w-5 h-5 text-teal-600" />
-              </div>
-              <div className="flex-1 text-left">
-                <h4 className="text-gray-800">Nearby Stores</h4>
-                <p className="text-gray-600">Find stores & get directions</p>
-              </div>
-              <span className="text-gray-400">›</span>
-            </button>
           </div>
         </div>
 
