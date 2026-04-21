@@ -13,7 +13,7 @@ interface BasketComparisonProps {
 
 export function BasketComparison({ onNavigate }: BasketComparisonProps) {
   const { user } = useAuth();
-  const [distance, setDistance] = useState(5);
+  const [distance, setDistance] = useState(50);
   const [loyaltyEnabled, setLoyaltyEnabled] = useState(true);
   const [sortBy, setSortBy] = useState<SortOption>('price');
   
@@ -240,7 +240,7 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
           <input 
             type="range" 
             min="1" 
-            max="20" 
+            max="50" 
             value={distance}
             onChange={(e) => setDistance(Number(e.target.value))}
             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#4CAF50]"
@@ -300,15 +300,14 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
 
             {/* distance filter */}
             <div className="space-y-3">
-              {stores.filter(s => {
-                if (s.distance === null) return true; // no location, show all
-                return s.distance <= distance;
-              }).map((store, index) => (
+              {stores.map((store, index) => {
+                const isOutsideRange = store.distance !== null && store.distance > distance;
+                return (
                 <div 
                   key={store.key} 
-                  className={`bg-white rounded-xl shadow-sm p-5 border-2 ${
-                    index === 0 ? 'border-[#4CAF50]' : 'border-transparent'
-                  }`}
+                  className={`bg-white rounded-xl shadow-sm p-5 border-2 transition-all ${
+                    index === 0 && !isOutsideRange ? 'border-[#4CAF50]' : 'border-transparent'
+                  } ${isOutsideRange ? 'opacity-60 bg-gray-50 grayscale-[0.2]' : ''}`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4 flex-1">
@@ -327,7 +326,14 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
                         />
                       </div>
                       <div className="flex-1">
-                        <h4 className="text-gray-800 mb-1">{store.name}</h4>
+                        <h4 className="flex items-center gap-2 text-gray-800 mb-1">
+                          {store.name}
+                          {isOutsideRange && (
+                            <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded text-[10px] font-medium tracking-wide">
+                              Too far
+                            </span>
+                          )}
+                        </h4>
                         <p className="text-gray-500 text-xs">
                           {store.distance !== null
                             ? `${store.distance.toFixed(1)} mi away · `
@@ -355,7 +361,7 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
                     </div>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           </div>
         )}
@@ -401,16 +407,14 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
                 return (
                   <div key={item.basket_item_id} className="bg-white border-2 border-gray-200 rounded-xl p-4 shadow-sm">
                     <div className="flex gap-3 mb-3">
-                      <div className="w-20 h-20 bg-white border border-gray-200 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
-                        {item.product_image ? (
-                          <img src={item.product_image} alt={item.product_name} className="w-full h-full object-contain p-1" />
-                        ) : (
-                          <span className="text-gray-300 text-xs text-center p-1">No Image</span>
-                        )}
-                      </div>
                       <div className="flex-1">
                         <h4 className="text-gray-800 mb-1">{item.product_name}</h4>
-                        <p className="text-gray-600 mb-2">{item.product_quantity}</p>
+                        <p className="text-gray-600 mb-1">{item.product_quantity}</p>
+                        {minPrice !== Infinity && (
+                          <div className="text-gray-800 font-medium mb-2">
+                            £{(minPrice * count).toFixed(2)} <span className="text-gray-500 text-sm font-normal">(£{minPrice.toFixed(2)} each)</span>
+                          </div>
+                        )}
                         {cheapestStoreId && (
                            <div className="flex items-center gap-2">
                              <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">
