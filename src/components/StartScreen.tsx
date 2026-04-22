@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import supabase from '../lib/supabase';
+import { MobileLayout } from './MobileLayout';
 
 interface StartScreenProps {
   onGetStarted: () => void;
@@ -48,14 +49,15 @@ export function StartScreen({ onGetStarted }: StartScreenProps) {
   };
 
   return (
-    <div 
-      className={`fixed inset-0 w-full h-full z-40 bg-gray-100 flex items-center justify-center p-4`}
-      style={{ 
-        opacity: fadeIn ? 1 : 0,
-        transition: 'opacity 700ms ease-in-out',
-      }}
-    >
-      <div className="w-full max-w-sm bg-white rounded-3xl p-8 shadow-xl">
+    <MobileLayout>
+      <div 
+        className="flex-1 flex items-center justify-center p-8"
+        style={{ 
+          opacity: fadeIn ? 1 : 0,
+          transition: 'opacity 700ms ease-in-out',
+        }}
+      >
+      <div className="w-full">
         <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">Pantry</h1>
         
         <form onSubmit={handleAuth} className="space-y-4">
@@ -104,7 +106,8 @@ export function StartScreen({ onGetStarted }: StartScreenProps) {
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </MobileLayout>
   );
 }
 

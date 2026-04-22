@@ -30,6 +30,7 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searching, setSearching] = useState(false);
+  const [popularProducts, setPopularProducts] = useState<any[]>([]);
 
   useEffect(() => {
     // ask for user location
@@ -121,6 +122,18 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
     }
   };
 
+  const openSearchModal = async () => {
+    setIsSearchModalOpen(true);
+    if (popularProducts.length === 0) {
+      try {
+        const { data } = await supabase.from('products').select('*').limit(12);
+        if (data) setPopularProducts(data);
+      } catch (err) {
+        console.error('Error fetching popular products:', err);
+      }
+    }
+  };
+
   const addToBasket = async (productId: string) => {
     if (!basketId) return;
     try {
@@ -177,18 +190,16 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
   }).sort((a, b) => {
     if (sortBy === 'price') return a.total - b.total;
     if (sortBy === 'distance') {
-      // if location is unavailable fall back to price sort
-      if (a.distance === null && b.distance === null) return a.total - b.total;
+      if (a.distance !== null && b.distance !== null) return a.distance - b.distance;
+      if (a.distance === null && b.distance === null) return a.name.localeCompare(b.name); // stable alphabetical when no location
       if (a.distance === null) return 1;
-      if (b.distance === null) return -1;
-      return a.distance - b.distance;
+      return -1;
     }
-    // smart = weighted price + distance score
-    const priceScore = (v: number) => 1 / (v || 1);
-    const distScore = (v: number | null) => v !== null ? 1 / (v || 0.1) : 0;
-    const scoreA = priceScore(a.total) * 0.6 + distScore(a.distance) * 0.4;
-    const scoreB = priceScore(b.total) * 0.6 + distScore(b.distance) * 0.4;
-    return scoreB - scoreA;
+    // smart = price weighted by loyalty savings potential
+    const loyaltyBonus = (s: typeof a) => loyaltyEnabled && s.hasLoyalty ? s.originalTotal - s.total : 0;
+    const effectiveA = a.total - loyaltyBonus(a) * 0.5 - (a.distance !== null ? Math.max(0, 10 - a.distance) * 0.3 : 0);
+    const effectiveB = b.total - loyaltyBonus(b) * 0.5 - (b.distance !== null ? Math.max(0, 10 - b.distance) * 0.3 : 0);
+    return effectiveA - effectiveB;
   });
 
   const sortLabels: Record<SortOption, string> = {
@@ -297,6 +308,9 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
                 </button>
               ))}
             </div>
+            {sortBy === 'distance' && !userLocation && (
+              <p className="text-xs text-amber-500 mb-3 text-center">📍 Location unavailable — sorted A–Z. Enable location for distance ordering.</p>
+            )}
 
             {/* distance filter */}
             <div className="space-y-3">
@@ -371,8 +385,8 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-gray-800">Your Basket ({items.length} items)</h3>
             <button 
-              onClick={() => setIsSearchModalOpen(true)}
-              className="bg-[#000] text-white px-4 py-2 rounded-lg flex items-center gap-2"
+              onClick={openSearchModal}
+              className="bg-[#4CAF50] text-white px-4 py-2 rounded-lg flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Add
@@ -380,9 +394,17 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
           </div>
           
           {items.length === 0 ? (
-             <div className="bg-white rounded-xl p-8 text-center text-gray-500 shadow-sm border border-gray-100">
-               <ShoppingCart className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-               <p>Your basket is empty. Add products to compare prices!</p>
+             <div className="bg-white rounded-xl py-12 px-8 text-center shadow-sm border border-gray-100">
+               <ShoppingCart className="w-14 h-14 mx-auto mb-3 text-gray-300" />
+               <p className="text-gray-600 mb-1">Your basket is empty</p>
+               <p className="text-gray-400 text-sm mb-5">Search for groceries and compare prices across stores</p>
+               <button
+                 onClick={openSearchModal}
+                 className="bg-[#4CAF50] text-white px-6 py-3 rounded-xl flex items-center gap-2 mx-auto"
+               >
+                 <Plus className="w-5 h-5" />
+                 Add your first product
+               </button>
              </div>
           ) : (
             <div className="space-y-4">
@@ -471,8 +493,22 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
 
                           return (
                             <div key={stId} className={`flex items-center gap-3 p-3 rounded-lg bg-white ${isCheapest ? 'ring-2 ring-[#4CAF50]' : 'border border-gray-100'}`}>
-                              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-gray-50 overflow-hidden shrink-0 text-xl">
-                                {emoji}
+                              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-50 border border-gray-100 overflow-hidden shrink-0 text-xl">
+                                {storeName.toLowerCase().includes('sainsbury') ? (
+                                  <img
+                                    src="https://cdn.brandfetch.io/id3jwaSrnD/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1685968241221"
+                                    alt={storeName}
+                                    className="w-8 h-8 object-contain"
+                                    onError={(e) => { e.currentTarget.style.display='none'; e.currentTarget.parentElement!.innerText = emoji; }}
+                                  />
+                                ) : stInfo?.store_domain ? (
+                                  <img
+                                    src={`https://www.google.com/s2/favicons?domain=${stInfo.store_domain}&sz=128`}
+                                    alt={storeName}
+                                    className="w-8 h-8 object-contain"
+                                    onError={(e) => { e.currentTarget.style.display='none'; e.currentTarget.parentElement!.innerText = emoji; }}
+                                  />
+                                ) : emoji}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
@@ -513,8 +549,8 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
         )}
         {/* Search Modal */}
         {isSearchModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-4 sm:p-0">
-            <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden animate-slide-up sm:animate-fade-in shadow-2xl">
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50">
+            <div className="bg-white rounded-t-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden shadow-2xl">
               <div className="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50/80 backdrop-blur">
                 <h3 className="text-lg font-bold text-gray-800">Add to Basket</h3>
                 <button 
@@ -577,6 +613,33 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
                     <Search className="w-10 h-10 text-gray-300 mb-3" />
                     <p>No products found for "{searchQuery}"</p>
                     <p className="text-xs mt-1">Try a different search term.</p>
+                  </div>
+                ) : popularProducts.length > 0 ? (
+                  <div>
+                    <p className="text-xs text-gray-400 px-3 pt-3 pb-2 font-medium uppercase tracking-wide">Popular products</p>
+                    <div className="space-y-2 px-1 pb-2">
+                      {popularProducts.map((product) => (
+                        <div key={product.id} className="flex items-center gap-3 p-3 bg-white border border-gray-100 rounded-xl hover:border-[#4CAF50]/50 transition-colors group">
+                          <div className="w-14 h-14 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center p-1 shrink-0">
+                            {product.image_url ? (
+                              <img src={product.image_url} alt={product.name} className="w-full h-full object-contain" />
+                            ) : (
+                              <ShoppingCart className="w-6 h-6 text-gray-300" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-gray-800 font-medium truncate">{product.name}</h4>
+                            <p className="text-xs text-gray-500 truncate">{product.quantity || '1 unit'}</p>
+                          </div>
+                          <button
+                            onClick={() => addToBasket(product.id)}
+                            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[#4CAF50] hover:bg-[#4CAF50] hover:text-white transition-colors shrink-0"
+                          >
+                            <Plus className="w-5 h-5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   <div className="p-8 text-center text-gray-400 flex flex-col items-center">
