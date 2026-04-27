@@ -6,6 +6,10 @@ Pantry is a UK grocery price comparison app. It lets you build a shopping basket
 
 You can add products to your basket and compare total costs across stores. The app also supports loyalty card pricing, a store map, recipe to list conversion, price history charts and dietary filters. Everything runs as a progressive web app so it works on mobile without needing an install.
 
+## Live app
+
+https://cm32027groupkpantry.netlify.app/
+
 ## Tech stack
 
 The frontend is built with React, TypeScript and Tailwind CSS. The backend uses Supabase for authentication and data storage. The app is deployed on Netlify.
