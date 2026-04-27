@@ -27,7 +27,7 @@ type AppState = 'splash' | 'onboarding' | 'app';
 type Screen = 'home' | 'basket' | 'recipe' | 'dietary' | 'social' | 'price-history' | 'notifications' | 'profile' | 'edit-profile' | 'general-settings' | 'privacy-security' | 'help-center' | 'contact-support' | 'faq' | 'terms' | 'privacy-policy' | 'how-pantry-works' | 'map';
 
 function MainApp() {
-  const { session, isLoading } = useAuth();
+  const { session, isLoading, isGuest } = useAuth();
   const [appState, setAppState] = useState<AppState>('splash');
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
@@ -41,21 +41,21 @@ function MainApp() {
 
   useEffect(() => {
     if (!isLoading && appState !== 'splash') {
-      setAppState(session ? 'app' : 'onboarding');
+      setAppState((session || isGuest) ? "app" : "onboarding")
     }
-  }, [session, isLoading, appState]);
+  }, [session, isGuest, isLoading, appState]);
 
   if (appState === 'splash') {
     return (
       <>
-        {session ? null : <StartScreen onGetStarted={() => {}} />}
+        {session ? null : <StartScreen onGetStarted={() => { }} />}
         <SplashScreen onFinish={handleSplashFinish} />
       </>
     );
   }
 
   if (appState === 'onboarding') {
-    return <StartScreen onGetStarted={() => {}} />;
+    return <StartScreen onGetStarted={() => { }} />;
   }
 
   const renderScreen = () => {
@@ -109,28 +109,28 @@ function MainApp() {
       <div className="fixed bottom-0 left-0 right-0 w-full max-w-md mx-auto pointer-events-none">
         <div className="bg-white border-t border-gray-200 px-4 py-3 rounded-b-3xl pointer-events-auto">
           <div className="flex justify-around items-center">
-            <button 
+            <button
               onClick={() => { setCurrentScreen('home'); setSelectedRecipeId(null); }}
               className="flex flex-col items-center gap-1"
             >
               <HomeIcon className={`w-6 h-6 ${currentScreen === 'home' ? 'text-[#4CAF50]' : 'text-gray-400'}`} />
               <span className={`text-xs ${currentScreen === 'home' ? 'text-[#4CAF50]' : 'text-gray-400'}`}>Home</span>
             </button>
-            <button 
+            <button
               onClick={() => { setCurrentScreen('basket'); setSelectedRecipeId(null); }}
               className="flex flex-col items-center gap-1"
             >
               <ShoppingCart className={`w-6 h-6 ${currentScreen === 'basket' ? 'text-[#4CAF50]' : 'text-gray-400'}`} />
               <span className={`text-xs ${currentScreen === 'basket' ? 'text-[#4CAF50]' : 'text-gray-400'}`}>Basket</span>
             </button>
-            <button 
+            <button
               onClick={() => { setCurrentScreen('social'); setSelectedRecipeId(null); }}
               className="flex flex-col items-center gap-1"
             >
               <Utensils className={`w-6 h-6 ${currentScreen === 'social' ? 'text-[#4CAF50]' : 'text-gray-400'}`} />
               <span className={`text-xs ${currentScreen === 'social' ? 'text-[#4CAF50]' : 'text-gray-400'}`}>Recipes</span>
             </button>
-            <button 
+            <button
               onClick={() => { setCurrentScreen('profile'); setSelectedRecipeId(null); }}
               className="flex flex-col items-center gap-1"
             >
