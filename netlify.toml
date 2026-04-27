@@ -1,0 +1,9 @@
+[build]
+  base = "Pantry_code"
+  command = "npm run build"
+  publish = "Pantry_code/dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
