@@ -16,7 +16,7 @@ export function StartScreen({ onGetStarted }: StartScreenProps) {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  const { setGuestMode } = useAuth()
+  const { signInAsGuest } = useAuth()
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -101,7 +101,7 @@ export function StartScreen({ onGetStarted }: StartScreenProps) {
 
           <button
             type="button"
-            onClick={() => setGuestMode(true)}
+            onClick={signInAsGuest}
             className="w-full bg-white border-2 border-gray-200 text-gray-700 py-3 rounded-xl font-medium mt-3 hover:bg-gray-50 transition-colors"
           >
             Continue as Guest

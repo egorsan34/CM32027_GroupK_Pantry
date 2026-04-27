@@ -18,7 +18,7 @@ interface AuthContextType {
   profile: Profile | null;
   isLoading: boolean;
   isGuest: boolean;
-  setGuestMode: (val: boolean) => void;
+  signInAsGuest: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
 
@@ -28,7 +28,7 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   isLoading: true,
   isGuest: false,
-  setGuestMode: () => { },
+  signInAsGuest: async () => { },
   refreshProfile: async () => { },
 });
 
@@ -39,17 +39,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isGuest, setIsGuest] = useState(() => localStorage.getItem('pantry_guest') === 'true');
 
-  const setGuestMode = (val: boolean) => {
-    setIsGuest(val)
+  const signInAsGuest = async () => {
+    try {
+      const { error } = await supabase.auth.signInAnonymously()
 
-    if (val) {
-      localStorage.setItem("pantry_guest", "true")
-    } else {
-      localStorage.removeItem("pantry_guest")
+      if (error) throw error
+    } catch (err) {
+      console.error("error signing in as guest:", err)
     }
   }
+
+  const isGuest = user?.is_anonymous ?? false
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -113,7 +114,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ session, user, profile, isLoading, isGuest, setGuestMode, refreshProfile }}>
+    <AuthContext.Provider value={{ session, user, profile, isLoading, isGuest, signInAsGuest, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
