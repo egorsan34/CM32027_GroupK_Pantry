@@ -8,6 +8,8 @@ You can add products to your basket and compare total costs across stores. The a
 
 ## Live app
 
+Landing page: https://github.com/IsaacAu11/pantry-landing-page
+
 https://cm32027groupkpantry.netlify.app/
 
 ## Tech stack
