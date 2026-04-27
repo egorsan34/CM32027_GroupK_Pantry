@@ -51,13 +51,13 @@ export function StartScreen({ onGetStarted }: StartScreenProps) {
   return (
     <MobileLayout>
       <div 
-        className="flex-1 flex items-center justify-center p-8"
+        className="flex-1 flex items-center justify-center bg-green-50 p-8"
         style={{ 
           opacity: fadeIn ? 1 : 0,
           transition: 'opacity 700ms ease-in-out',
         }}
       >
-      <div className="w-full">
+      <div className="w-full max-w-[260px] mx-auto">
         <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">Pantry</h1>
         
         <form onSubmit={handleAuth} className="space-y-4">

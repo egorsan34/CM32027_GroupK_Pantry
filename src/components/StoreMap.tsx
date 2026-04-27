@@ -69,6 +69,7 @@ export function StoreMap({ onNavigate }: StoreMapProps) {
   const [storesData, setStoresData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userPos, setUserPos] = useState<{ lat: number; lng: number }>({ lat: 51.5072, lng: -0.1276 });
+  const [locationDenied, setLocationDenied] = useState(false);
   const [radiusMiles, setRadiusMiles] = useState(2);
   const [activeChain, setActiveChain] = useState("All Stores");
   const radiusMetres = radiusMiles * 1609.34;
@@ -77,8 +78,8 @@ export function StoreMap({ onNavigate }: StoreMapProps) {
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => setUserPos({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        () => {}
+        (pos) => { setUserPos({ lat: pos.coords.latitude, lng: pos.coords.longitude }); setLocationDenied(false); },
+        () => { setLocationDenied(true); }
       );
     }
   }, []);
@@ -168,6 +169,17 @@ export function StoreMap({ onNavigate }: StoreMapProps) {
       </div>
 
       <div className="px-6 -mt-4">
+        {/* Location denied banner */}
+        {locationDenied && (
+          <div className="mb-4 flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+            <span className="text-amber-500 text-lg mt-0.5">📍</span>
+            <div className="flex-1">
+              <p className="text-amber-800 font-medium text-sm">Location access denied</p>
+              <p className="text-amber-600 text-xs mt-0.5">Showing stores near London. Enable location in your browser settings for accurate results.</p>
+            </div>
+          </div>
+        )}
+
         {/* View Toggle */}
         <div className="mb-4 bg-white rounded-xl shadow-sm p-2 flex gap-2">
           <button

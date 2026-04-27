@@ -105,11 +105,11 @@ export function SocialRecipes({ onNavigate, onSelectRecipe, activeDietaryFilters
 
         {/* Search Bar */}
         <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input 
             type="text"
             placeholder="Search recipes..."
-            className="w-full pl-10 pr-4 py-3 rounded-lg"
+            className="w-full pl-12 pr-4 py-3 rounded-lg"
           />
         </div>
 

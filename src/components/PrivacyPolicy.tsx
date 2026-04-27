@@ -18,21 +18,37 @@ const sections = [
 
 export function PrivacyPolicy({ onNavigate }: Props) {
   return (
-    <div className="min-h-screen bg-white">
-      <div className="flex justify-between items-center p-6 border-b border-gray-200">
-        <button onClick={() => onNavigate('profile')}>
-          <ChevronLeft className="w-6 h-6 text-gray-600" />
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex justify-between items-center p-6 bg-white border-b border-gray-100">
+        <button
+          onClick={() => onNavigate('profile')}
+          className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5 text-gray-600" />
         </button>
-        <h1 className="text-gray-800">Privacy Policy</h1>
-        <div className="w-6" />
+        <h1 className="text-gray-900 font-semibold">Privacy Policy</h1>
+        <div className="w-9" />
       </div>
 
-      <div className="p-6 space-y-5">
-        <p className="text-gray-400 text-sm">Last updated: 10 March 2026</p>
-        {sections.map((s) => (
-          <div key={s.title}>
-            <p className="text-gray-800 font-medium mb-1">{s.title}</p>
-            <p className="text-gray-500 text-sm leading-relaxed">{s.body}</p>
+      <div className="p-6 space-y-3">
+        {/* Header card */}
+        <div className="bg-emerald-50 rounded-2xl border border-emerald-100 p-4 mb-2">
+          <p className="text-emerald-900 font-semibold text-sm">UK GDPR Compliant</p>
+          <p className="text-emerald-500 text-xs mt-0.5">Last updated: 10 March 2026</p>
+        </div>
+
+        {sections.map((s, i) => (
+          <div key={s.title} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <div className="flex items-center gap-3 mb-2">
+              <span
+                className="rounded-full bg-[#4CAF50]/10 text-[#4CAF50] text-xs font-bold flex items-center justify-center flex-none"
+                style={{ width: '1.75rem', height: '1.75rem', minWidth: '1.75rem' }}
+              >
+                {i + 1}
+              </span>
+              <p className="text-gray-900 font-semibold text-sm">{s.title}</p>
+            </div>
+            <p className="text-gray-500 text-sm leading-relaxed pl-10">{s.body}</p>
           </div>
         ))}
       </div>

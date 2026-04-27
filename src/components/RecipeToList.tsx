@@ -19,6 +19,8 @@ export function RecipeToList({ onNavigate, recipeId, onResetRecipe }: RecipeToLi
   const [inputMethod, setInputMethod] = useState<'url' | 'instagram' | 'youtube' | 'shorts'>('url');
   
   const [analyzing, setAnalyzing] = useState(false);
+  const [analyzeStep, setAnalyzeStep] = useState(0);
+  const [showComingSoon, setShowComingSoon] = useState(false);
   const [ingredients, setIngredients] = useState<any[]>([]);
   const [storePrices, setStorePrices] = useState<any[]>([]);
   const [recipeName, setRecipeName] = useState('');
@@ -27,17 +29,39 @@ export function RecipeToList({ onNavigate, recipeId, onResetRecipe }: RecipeToLi
   const [basketStatus, setBasketStatus] = useState<'idle' | 'adding' | 'success' | 'error'>('idle');
   const [addedProductIds, setAddedProductIds] = useState<Set<string>>(new Set());
 
+  const analyzeSteps = [
+    'Fetching recipe page...',
+    'Reading ingredient list...',
+    'Matching products to stores...',
+    'Calculating prices...',
+  ];
+
   const handleExtract = async (overrideId?: string) => {
     if (!url && !overrideId) return;
+
+    // URL typed by user — show animated analysis then "coming soon"
+    if (!overrideId) {
+      setAnalyzing(true);
+      setAnalyzeStep(0);
+      const stepInterval = setInterval(() => {
+        setAnalyzeStep(prev => {
+          if (prev >= analyzeSteps.length - 1) { clearInterval(stepInterval); return prev; }
+          return prev + 1;
+        });
+      }, 600);
+      await new Promise(res => setTimeout(res, 2800));
+      clearInterval(stepInterval);
+      setAnalyzing(false);
+      setShowComingSoon(true);
+      return;
+    }
+
     setAnalyzing(true);
     setError(null);
     try {
       let recipeData;
       if (overrideId) {
         const { data } = await supabase.from('recipes').select('*').eq('id', overrideId).maybeSingle();
-        recipeData = data;
-      } else {
-        const { data } = await supabase.from('recipes').select('*').limit(1).maybeSingle();
         recipeData = data;
       }
       
@@ -57,13 +81,23 @@ export function RecipeToList({ onNavigate, recipeId, onResetRecipe }: RecipeToLi
 
         const { data: storeData } = await supabase.rpc('get_recipe_costs_by_store', { p_recipe_id: recipeData.id });
         if (storeData) {
+          const getDomain = (name: string) => {
+            const n = name.toLowerCase();
+            if (n.includes('tesco')) return 'tesco.com';
+            if (n.includes('aldi')) return 'aldi.co.uk';
+            if (n.includes('lidl')) return 'lidl.co.uk';
+            if (n.includes('morrisons')) return 'morrisons.com';
+            if (n.includes('sainsbury')) return 'sainsburys.co.uk';
+            if (n.includes('waitrose')) return 'waitrose.com';
+            if (n.includes('asda')) return 'asda.com';
+            if (n.includes('m&s') || n.includes('marks')) return 'marksandspencer.com';
+            return '';
+          };
            setStorePrices(storeData.map((s: any) => ({
              key: s.store_id,
              name: s.store_name,
              emoji: s.store_emoji,
-             color: s.store_name.toLowerCase().includes('tesco') ? '#00539F' : 
-                    s.store_name.toLowerCase().includes('aldi') ? '#00A0E3' : 
-                    s.store_name.toLowerCase().includes('sainsbury') ? '#F06C00' : '#4CAF50',
+             domain: getDomain(s.store_name),
              price: Number(s.total_cost)
            })).sort((a: any, b: any) => a.price - b.price));
         }
@@ -287,7 +321,7 @@ export function RecipeToList({ onNavigate, recipeId, onResetRecipe }: RecipeToLi
                 {analyzing ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent flex items-center justify-center rounded-full animate-spin"></div>
-                    Analyzing Recipe...
+                    {analyzeSteps[analyzeStep]}
                   </>
                 ) : (
                   '🤖 Extract Ingredients with AI'
@@ -302,7 +336,77 @@ export function RecipeToList({ onNavigate, recipeId, onResetRecipe }: RecipeToLi
             </div>
           </>
         )}
-        {/* Loyalty Toggle */}
+
+        {/* Coming Soon State */}
+        {showComingSoon && (
+          <div className="mb-6 mt-2">
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              <div
+                className="p-6 text-white"
+                style={{ background: 'linear-gradient(135deg, #8b5cf6, #ec4899)' }}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center">
+                    <span className="text-3xl">🤖</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg leading-tight">AI Extraction</h3>
+                    <span className="bg-white/25 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                      Coming Soon
+                    </span>
+                  </div>
+                </div>
+                <p className="text-white/90 text-sm leading-relaxed">
+                  We're building AI-powered parsing for URLs, Instagram Reels, and YouTube videos.
+                  It's almost ready!
+                </p>
+              </div>
+              <div className="p-5 space-y-3">
+                {[
+                  { icon: '🔗', label: 'Recipe URLs', sub: 'BBC Good Food, AllRecipes, Delicious…', done: false },
+                  { icon: '📸', label: 'Instagram Reels', sub: 'Auto-detect ingredients from food videos', done: false },
+                  { icon: '▶️', label: 'YouTube Videos', sub: 'Extract from cooking tutorials', done: false },
+                  { icon: '✅', label: 'Manual recipe browsing', sub: 'Browse our recipe collection now', done: true },
+                ].map(item => (
+                  <div key={item.label} className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-base ${
+                      item.done ? 'bg-green-100' : 'bg-gray-100'
+                    }`}>
+                      {item.icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium ${ item.done ? 'text-[#4CAF50]' : 'text-gray-700' }`}>
+                        {item.label}
+                      </p>
+                      <p className="text-xs text-gray-400 truncate">{item.sub}</p>
+                    </div>
+                    {item.done
+                      ? <span className="text-[#4CAF50] text-xs font-semibold">Live</span>
+                      : <span className="text-gray-300 text-xs">Soon</span>
+                    }
+                  </div>
+                ))}
+              </div>
+              <div className="px-5 pb-5 space-y-2">
+                <button
+                  onClick={() => { if (onResetRecipe) onResetRecipe(); onNavigate('social'); }}
+                  className="w-full py-3 bg-[#4CAF50] text-white rounded-xl font-medium"
+                >
+                  Browse Recipe Collection
+                </button>
+                <button
+                  onClick={() => { setShowComingSoon(false); setUrl(''); }}
+                  className="w-full py-3 border-2 border-gray-200 text-gray-600 rounded-xl font-medium"
+                >
+                  Try Another Link
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Loyalty Toggle — only show when recipe is loaded */}
+        {!showComingSoon && (
         <div className="mb-6 bg-white rounded-xl shadow-sm p-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -323,6 +427,7 @@ export function RecipeToList({ onNavigate, recipeId, onResetRecipe }: RecipeToLi
             </label>
           </div>
         </div>
+        )}
 
         {/* Extracted Ingredients */}
         {extracted && (
@@ -398,9 +503,19 @@ export function RecipeToList({ onNavigate, recipeId, onResetRecipe }: RecipeToLi
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
-                             style={{ backgroundColor: `${store.color}20` }}>
-                          {store.emoji}
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-50 border border-gray-100 overflow-hidden flex-shrink-0">
+                          <img
+                            src={store.name.toLowerCase().includes('sainsbury')
+                              ? 'https://cdn.brandfetch.io/id3jwaSrnD/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1685968241221'
+                              : `https://www.google.com/s2/favicons?domain=${store.domain}&sz=128`
+                            }
+                            alt={store.name}
+                            className="w-8 h-8 object-contain"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.parentElement!.innerText = store.emoji;
+                            }}
+                          />
                         </div>
                         <div>
                           <h4 className="text-gray-800 font-medium">{store.name}</h4>
@@ -432,8 +547,19 @@ export function RecipeToList({ onNavigate, recipeId, onResetRecipe }: RecipeToLi
             {/* Best Deal Highlight */}
             <div className="mb-6 bg-gradient-to-br from-[#4CAF50] to-[#45a049] rounded-xl shadow-lg p-6 text-white">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-white/20">
-                  {cheapestStore.emoji}
+                <div className="w-16 h-16 rounded-full flex items-center justify-center bg-white/20 overflow-hidden flex-shrink-0">
+                  <img
+                    src={cheapestStore.name?.toLowerCase().includes('sainsbury')
+                      ? 'https://cdn.brandfetch.io/id3jwaSrnD/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1685968241221'
+                      : `https://www.google.com/s2/favicons?domain=${cheapestStore.domain}&sz=128`
+                    }
+                    alt={cheapestStore.name}
+                    className="w-10 h-10 object-contain"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.parentElement!.innerText = cheapestStore.emoji;
+                    }}
+                  />
                 </div>
                 <div className="flex-1">
                   <h3 className="mb-1">🎉 Best Deal Found!</h3>

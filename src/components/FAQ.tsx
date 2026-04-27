@@ -18,20 +18,31 @@ const faqs = [
 
 export function FAQ({ onNavigate }: Props) {
   return (
-    <div className="min-h-screen bg-white">
-      <div className="flex justify-between items-center p-6 border-b border-gray-200">
-        <button onClick={() => onNavigate('profile')}>
-          <ChevronLeft className="w-6 h-6 text-gray-600" />
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex justify-between items-center p-6 bg-white border-b border-gray-100">
+        <button
+          onClick={() => onNavigate('profile')}
+          className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5 text-gray-600" />
         </button>
-        <h1 className="text-gray-800">FAQ</h1>
-        <div className="w-6" />
+        <h1 className="text-gray-900 font-semibold">FAQ</h1>
+        <div className="w-9" />
       </div>
 
-      <div className="p-6 space-y-4">
+      <div className="p-6 space-y-3">
+        <p className="text-gray-400 text-sm pb-1">Your most common questions, answered.</p>
         {faqs.map((item, i) => (
-          <div key={i} className="p-4 bg-gray-50 rounded-xl">
-            <p className="text-gray-800 font-medium mb-2">{item.q}</p>
-            <p className="text-gray-500 text-sm leading-relaxed">{item.a}</p>
+          <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="flex items-start gap-3 p-6">
+              <span className="w-7 h-7 rounded-full bg-[#4CAF50]/10 text-[#4CAF50] text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                {i + 1}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-gray-900 font-semibold text-sm leading-snug mb-2">{item.q}</p>
+                <p className="text-gray-500 text-sm leading-relaxed">{item.a}</p>
+              </div>
+            </div>
           </div>
         ))}
       </div>

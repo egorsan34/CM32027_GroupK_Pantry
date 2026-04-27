@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, CheckCircle } from 'lucide-react';
 
 type Screen = 'home' | 'basket' | 'recipe' | 'dietary' | 'social' | 'price-history' | 'notifications' | 'profile' | 'edit-profile' | 'general-settings' | 'privacy-security' | 'help-center' | 'contact-support' | 'faq' | 'terms' | 'privacy-policy' | 'how-pantry-works';
 
@@ -10,8 +10,26 @@ interface Props {
 export function GeneralSettings({ onNavigate }: Props) {
   const [distanceUnit, setDistanceUnit] = useState<'miles' | 'km'>('miles');
   const [currency, setCurrency] = useState('GBP');
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = () => {
+    setSaved(true);
+    setTimeout(() => {
+      setSaved(false);
+      onNavigate('profile');
+    }, 1500);
+  };
+
   return (
     <div className="min-h-screen bg-white">
+      {/* Saved toast */}
+      {saved && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-gray-900 text-white px-5 py-3 rounded-full shadow-xl text-sm font-medium">
+          <CheckCircle className="w-4 h-4 text-[#4CAF50]" />
+          Settings saved!
+        </div>
+      )}
+
       <div className="flex justify-between items-center p-6 border-b border-gray-200">
         <button onClick={() => onNavigate('profile')}>
           <ChevronLeft className="w-6 h-6 text-gray-600" />
@@ -56,10 +74,13 @@ export function GeneralSettings({ onNavigate }: Props) {
         </div>
 
         <button
-          onClick={() => onNavigate('profile')}
-          className="w-full py-4 bg-[#4CAF50] text-white rounded-xl font-medium text-base"
+          onClick={handleSave}
+          disabled={saved}
+          className="w-full py-4 bg-[#4CAF50] text-white rounded-xl font-medium text-base flex items-center justify-center gap-2 transition-all disabled:opacity-70"
         >
-          Save Settings
+          {saved ? (
+            <><CheckCircle className="w-5 h-5" /> Saved!</>
+          ) : 'Save Settings'}
         </button>
       </div>
     </div>

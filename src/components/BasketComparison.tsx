@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ChevronLeft, Bell, Trash2, Plus, Minus, Star, ChevronDown, ShoppingCart, Search, X } from 'lucide-react';
 import supabase from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { resolveProductImage } from '../lib/productImages';
 
 type Screen = 'home' | 'basket' | 'recipe' | 'dietary' | 'social' | 'price-history' | 'notifications' | 'profile' | 'edit-profile' | 'general-settings' | 'privacy-security' | 'help-center' | 'contact-support' | 'faq' | 'terms' | 'privacy-policy' | 'how-pantry-works' | 'map';
 
@@ -24,6 +25,7 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
   const [loading, setLoading] = useState(true);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationDenied, setLocationDenied] = useState(false);
 
   // Search Modal State
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -36,8 +38,8 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
     // ask for user location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        () => setUserLocation(null) // permission denied or unavailable
+        (pos) => { setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }); setLocationDenied(false); },
+        () => { setLocationDenied(true); setUserLocation(null); }
       );
     }
   }, []);
@@ -309,7 +311,19 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
               ))}
             </div>
             {sortBy === 'distance' && !userLocation && (
-              <p className="text-xs text-amber-500 mb-3 text-center">📍 Location unavailable — sorted A–Z. Enable location for distance ordering.</p>
+              <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-3">
+                <span className="text-amber-500 text-base mt-0.5">📍</span>
+                <div>
+                  <p className="text-amber-800 font-medium text-sm">
+                    {locationDenied ? 'Location access denied' : 'Location unavailable'}
+                  </p>
+                  <p className="text-amber-600 text-xs mt-0.5">
+                    {locationDenied
+                      ? 'Enable location in your browser settings to sort by distance.'
+                      : 'Sorted A–Z. Enable location for distance ordering.'}
+                  </p>
+                </div>
+              </div>
             )}
 
             {/* distance filter */}
@@ -393,11 +407,107 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
             </button>
           </div>
           
+          {/* Inline search panel — scrolls with the page */}
+          {isSearchModalOpen && (
+            <div className="mb-4 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="flex justify-between items-center px-4 py-3 border-b border-gray-100">
+                <h3 className="text-base font-bold text-gray-800">Add to Basket</h3>
+                <button
+                  onClick={() => { setIsSearchModalOpen(false); setSearchQuery(''); setSearchResults([]); }}
+                  className="p-1.5 bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="px-4 py-3 border-b border-gray-100">
+                <div className="relative">
+                  <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => searchProducts(e.target.value)}
+                    placeholder="       Search for products..."
+                    className="w-full pl-14 pr-4 py-4 bg-gray-50 border border-gray-200 focus:border-[#4CAF50] focus:ring-2 focus:ring-[#4CAF50]/20 rounded-xl outline-none text-gray-800 placeholder-gray-400 text-base transition-all"
+                    autoFocus
+                  />
+                </div>
+              </div>
+              <div className="overflow-y-auto max-h-72">
+                {searching ? (
+                  <div className="p-8 flex justify-center">
+                    <div className="w-6 h-6 border-2 border-[#4CAF50] border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ) : searchResults.length > 0 ? (
+                  <div className="space-y-1 p-2">
+                    {searchResults.map((product) => (
+                      <div key={product.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                        <div className="w-11 h-11 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden">
+                          {resolveProductImage(product.name, product.image_url) ? (
+                            <img src={resolveProductImage(product.name, product.image_url)!} alt={product.name} className="w-full h-full object-contain rounded-lg" />
+                          ) : (
+                            <ShoppingCart className="w-5 h-5 text-gray-300" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-gray-800 font-medium text-sm truncate">{product.name}</p>
+                          <p className="text-xs text-gray-400 truncate">{product.quantity || '1 unit'}</p>
+                        </div>
+                        <button
+                          onClick={() => addToBasket(product.id)}
+                          className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[#4CAF50] hover:bg-[#4CAF50] hover:text-white transition-colors shrink-0"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : searchQuery.length > 0 ? (
+                  <div className="p-8 text-center text-gray-400">
+                    <Search className="w-8 h-8 mx-auto mb-2 text-gray-200" />
+                    <p className="text-sm">No results for "{searchQuery}"</p>
+                  </div>
+                ) : popularProducts.length > 0 ? (
+                  <div className="pb-2">
+                    <p className="text-xs text-gray-400 px-4 pt-3 pb-2 font-medium uppercase tracking-wide">Popular products</p>
+                    <div className="space-y-1 px-2">
+                      {popularProducts.map((product) => (
+                        <div key={product.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                          <div className="w-11 h-11 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden">
+                            {resolveProductImage(product.name, product.image_url) ? (
+                              <img src={resolveProductImage(product.name, product.image_url)!} alt={product.name} className="w-full h-full object-contain rounded-lg" />
+                            ) : (
+                              <ShoppingCart className="w-5 h-5 text-gray-300" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-gray-800 font-medium text-sm truncate">{product.name}</p>
+                            <p className="text-xs text-gray-400 truncate">{product.quantity || '1 unit'}</p>
+                          </div>
+                          <button
+                            onClick={() => addToBasket(product.id)}
+                            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[#4CAF50] hover:bg-[#4CAF50] hover:text-white transition-colors shrink-0"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-8 text-center text-gray-400">
+                    <ShoppingCart className="w-10 h-10 mx-auto mb-2 text-gray-200" />
+                    <p className="text-sm">Type to search for groceries</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {items.length === 0 ? (
              <div className="bg-white rounded-xl py-12 px-8 text-center shadow-sm border border-gray-100">
                <ShoppingCart className="w-14 h-14 mx-auto mb-3 text-gray-300" />
                <p className="text-gray-600 mb-1">Your basket is empty</p>
-               <p className="text-gray-400 text-sm mb-5">Search for groceries and compare prices across stores</p>
+               <p className="text-gray-400 text-sm mb-6">Search for groceries and compare prices across stores</p>
                <button
                  onClick={openSearchModal}
                  className="bg-[#4CAF50] text-white px-6 py-3 rounded-xl flex items-center gap-2 mx-auto"
@@ -547,110 +657,7 @@ export function BasketComparison({ onNavigate }: BasketComparisonProps) {
             </button>
           </div>
         )}
-        {/* Search Modal */}
-        {isSearchModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50">
-            <div className="bg-white rounded-t-2xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden shadow-2xl">
-              <div className="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50/80 backdrop-blur">
-                <h3 className="text-lg font-bold text-gray-800">Add to Basket</h3>
-                <button 
-                  onClick={() => {
-                    setIsSearchModalOpen(false);
-                    setSearchQuery('');
-                    setSearchResults([]);
-                  }}
-                  className="p-2 bg-gray-200/50 text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              
-              <div className="p-4 border-b border-gray-100 flex-shrink-0 bg-white">
-                <div className="relative">
-                  <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => searchProducts(e.target.value)}
-                    placeholder="Search for products..."
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border-transparent focus:bg-white focus:border-[#4CAF50] focus:ring-2 focus:ring-[#4CAF50]/20 rounded-xl transition-all outline-none text-gray-800 placeholder-gray-400"
-                    autoFocus
-                  />
-                </div>
-              </div>
 
-              <div className="flex-1 overflow-y-auto p-2 bg-gray-50/30">
-                {searching ? (
-                  <div className="p-8 flex justify-center text-gray-400">
-                    <div className="w-6 h-6 border-2 border-[#4CAF50] border-t-transparent rounded-full animate-spin"></div>
-                  </div>
-                ) : searchResults.length > 0 ? (
-                  <div className="space-y-2">
-                    {searchResults.map((product) => (
-                      <div key={product.id} className="flex items-center gap-3 p-3 bg-white border border-gray-100 rounded-xl hover:border-[#4CAF50]/50 transition-colors group">
-                        <div className="w-14 h-14 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center p-1 shrink-0 group-hover:bg-[#4CAF50]/5 transition-colors">
-                          {product.image_url ? (
-                            <img src={product.image_url} alt={product.name} className="w-full h-full object-contain" />
-                          ) : (
-                            <ShoppingCart className="w-6 h-6 text-gray-300" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-gray-800 font-medium truncate">{product.name}</h4>
-                          <p className="text-xs text-gray-500 truncate">{product.quantity || '1 unit'}</p>
-                        </div>
-                        <button
-                          onClick={() => addToBasket(product.id)}
-                          className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[#4CAF50] hover:bg-[#4CAF50] hover:text-white transition-colors shrink-0"
-                        >
-                          <Plus className="w-5 h-5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                ) : searchQuery.length > 0 ? (
-                  <div className="p-8 text-center text-gray-500 flex flex-col items-center">
-                    <Search className="w-10 h-10 text-gray-300 mb-3" />
-                    <p>No products found for "{searchQuery}"</p>
-                    <p className="text-xs mt-1">Try a different search term.</p>
-                  </div>
-                ) : popularProducts.length > 0 ? (
-                  <div>
-                    <p className="text-xs text-gray-400 px-3 pt-3 pb-2 font-medium uppercase tracking-wide">Popular products</p>
-                    <div className="space-y-2 px-1 pb-2">
-                      {popularProducts.map((product) => (
-                        <div key={product.id} className="flex items-center gap-3 p-3 bg-white border border-gray-100 rounded-xl hover:border-[#4CAF50]/50 transition-colors group">
-                          <div className="w-14 h-14 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center p-1 shrink-0">
-                            {product.image_url ? (
-                              <img src={product.image_url} alt={product.name} className="w-full h-full object-contain" />
-                            ) : (
-                              <ShoppingCart className="w-6 h-6 text-gray-300" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-gray-800 font-medium truncate">{product.name}</h4>
-                            <p className="text-xs text-gray-500 truncate">{product.quantity || '1 unit'}</p>
-                          </div>
-                          <button
-                            onClick={() => addToBasket(product.id)}
-                            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[#4CAF50] hover:bg-[#4CAF50] hover:text-white transition-colors shrink-0"
-                          >
-                            <Plus className="w-5 h-5" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="p-8 text-center text-gray-400 flex flex-col items-center">
-                    <ShoppingCart className="w-12 h-12 mb-3 text-gray-200" />
-                    <p className="text-sm">Type to search for groceries</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
