@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import supabase from '../lib/supabase';
 import { MobileLayout } from './MobileLayout';
+import { useAuth } from '../contexts/AuthContext';
 
 interface StartScreenProps {
   onGetStarted: () => void;
@@ -14,6 +15,8 @@ export function StartScreen({ onGetStarted }: StartScreenProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+
+  const { setGuestMode } = useAuth()
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -50,62 +53,70 @@ export function StartScreen({ onGetStarted }: StartScreenProps) {
 
   return (
     <MobileLayout>
-      <div 
+      <div
         className="flex-1 flex items-center justify-center bg-green-50 p-8"
-        style={{ 
+        style={{
           opacity: fadeIn ? 1 : 0,
           transition: 'opacity 700ms ease-in-out',
         }}
       >
-      <div className="w-full max-w-[260px] mx-auto">
-        <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">Pantry</h1>
-        
-        <form onSubmit={handleAuth} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input 
-              type="email" 
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#4CAF50] focus:outline-none text-gray-800"
-              placeholder="you@example.com"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input 
-              type="password" 
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#4CAF50] focus:outline-none text-gray-800"
-              placeholder="••••••••"
-            />
-          </div>
+        <div className="w-full max-w-[260px] mx-auto">
+          <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">Pantry</h1>
 
-          {error && <p className="text-red-500 text-sm py-1">{error}</p>}
-          {message && <p className="text-green-600 text-sm py-1">{message}</p>}
+          <form onSubmit={handleAuth} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#4CAF50] focus:outline-none text-gray-800"
+                placeholder="you@example.com"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#4CAF50] focus:outline-none text-gray-800"
+                placeholder="••••••••"
+              />
+            </div>
 
-          <button 
-            type="submit"
-            disabled={loading}
-            className="w-full bg-[#4CAF50] text-white py-3 rounded-xl font-medium mt-4 disabled:opacity-50"
-          >
-            {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
-          </button>
-        </form>
+            {error && <p className="text-red-500 text-sm py-1">{error}</p>}
+            {message && <p className="text-green-600 text-sm py-1">{message}</p>}
 
-        <div className="mt-6 text-center">
-          <button 
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#4CAF50] text-white py-3 rounded-xl font-medium mt-4 disabled:opacity-50"
+            >
+              {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
+            </button>
+          </form>
+
+          <button
             type="button"
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-sm text-gray-500 hover:text-gray-800"
+            onClick={() => setGuestMode(true)}
+            className="w-full bg-white border-2 border-gray-200 text-gray-700 py-3 rounded-xl font-medium mt-3 hover:bg-gray-50 transition-colors"
           >
-            {isLogin ? "Don't have an account? Sign Up" : "Already have an account? Sign In"}
+            Continue as Guest
           </button>
+
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={() => setIsLogin(!isLogin)}
+              className="text-sm text-gray-500 hover:text-gray-800"
+            >
+              {isLogin ? "Don't have an account? Sign Up" : "Already have an account? Sign In"}
+            </button>
+          </div>
         </div>
-      </div>
       </div>
     </MobileLayout>
   );

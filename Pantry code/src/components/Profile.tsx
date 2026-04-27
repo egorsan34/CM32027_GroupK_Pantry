@@ -10,13 +10,17 @@ interface ProfileProps {
 }
 
 export function Profile({ onNavigate }: ProfileProps) {
-  const { profile, user } = useAuth();
+  const { profile, user, isGuest, setGuestMode } = useAuth();
   const [showTutorial, setShowTutorial] = useState(false);
   const profileName = profile?.display_name || 'Smart Shopper';
   const profileEmail = user?.email || '';
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    if (isGuest) {
+      setGuestMode(false)
+    } else {
+      await supabase.auth.signOut();
+    }
   };
 
   return (
@@ -184,9 +188,12 @@ export function Profile({ onNavigate }: ProfileProps) {
           </div>
         </div>
 
-        <button onClick={handleLogout} className="w-full flex items-center justify-center gap-3 p-4 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors">
+        <button onClick={handleLogout} className={`w-full flex items-center justify-center gap-3 p-4 rounded-lg transition-colors ${isGuest
+          ? 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+          : 'bg-red-50 text-red-600 hover:bg-red-100'
+          }`}>
           <LogOut className="w-5 h-5" />
-          <span>Log Out</span>
+          <span>{isGuest ? 'Sign In / Create Account' : 'Log Out'}</span>
         </button>
       </div>
 

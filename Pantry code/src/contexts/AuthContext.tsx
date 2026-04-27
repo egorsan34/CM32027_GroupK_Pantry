@@ -17,6 +17,8 @@ interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   isLoading: boolean;
+  isGuest: boolean;
+  setGuestMode: (val: boolean) => void;
   refreshProfile: () => Promise<void>;
 }
 
@@ -25,7 +27,9 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
   isLoading: true,
-  refreshProfile: async () => {},
+  isGuest: false,
+  setGuestMode: () => { },
+  refreshProfile: async () => { },
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -35,6 +39,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(() => localStorage.getItem('pantry_guest') === 'true');
+
+  const setGuestMode = (val: boolean) => {
+    setIsGuest(val)
+
+    if (val) {
+      localStorage.setItem("pantry_guest", "true")
+    } else {
+      localStorage.removeItem("pantry_guest")
+    }
+  }
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -43,7 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .select('*')
         .eq('id', userId)
         .single();
-      
+
       if (error) {
         console.error('Error fetching profile:', error);
       } else if (data) {
@@ -98,7 +113,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ session, user, profile, isLoading, refreshProfile }}>
+    <AuthContext.Provider value={{ session, user, profile, isLoading, isGuest, setGuestMode, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
